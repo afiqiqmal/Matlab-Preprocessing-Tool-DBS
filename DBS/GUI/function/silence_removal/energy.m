@@ -16,7 +16,6 @@ error(nargchk(1,4,nargin,'struct'));
 
 % generate the window
 win = (winamp*(window(str2func(wintype),winlen))).';
-
 % enery calculation
 x2 = x.^2;
 En = winconv(x2,wintype,win,winlen);

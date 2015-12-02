@@ -86,7 +86,7 @@ waitbar(0.2,h,strcat('Plotting Every Signal',{' '},'20%'));
 normal = getappdata(hMainGui,'normalSig');
 handles.normal_play = audioplayer(normal,fs);
 axes(handles.normal_sig);
-plot(normal);
+plot(normal,'Color','red');
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
@@ -109,17 +109,16 @@ title(strcat('Input Signal for',{' '},plottitle,{' '},'After Silence Removal'));
 set(gca,'FontSize',8,'fontWeight','bold');
 set(findall(gcf,'type','text'),'FontSize',8,'fontWeight','bold');
 
-percentage = 100 - (length(silence)/ length(normal)) * 100;
-pcnt = strcat(num2str(sprintf('%.2f',percentage)),'%');
+pcnt = getappdata(hMainGui,'sil_edit');
 set(handles.sil_edit,'String',pcnt);
 
 %%
 waitbar(0.5,h,strcat('Plotting Every Signal',{' '},'50%'));
 
 %% noise signal
-silence = getappdata(hMainGui,'noiseSig');
+noise = getappdata(hMainGui,'noiseSig');
 axes(handles.noise_sig);
-plot(silence);
+plot(noise);
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
@@ -127,13 +126,16 @@ title(strcat('Input Signal for',{' '},plottitle,{' '},'After Noise Removal'));
 set(gca,'FontSize',8,'fontWeight','bold');
 set(findall(gcf,'type','text'),'FontSize',8,'fontWeight','bold');
 
+pcnt = getappdata(hMainGui,'noi_edit');
+set(handles.noi_edit,'String',pcnt);
+
 %%
 waitbar(0.8,h,strcat('Plotting Every Signal',{' '},'80%'));
 
 %% output signal
 silence = getappdata(hMainGui,'outputSig');
 axes(handles.output_sig);
-plot(silence);
+plot(silence,'Color',[251 111 66] ./ 255);
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');

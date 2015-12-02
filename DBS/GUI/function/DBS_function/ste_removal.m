@@ -20,15 +20,15 @@ function ste_silence_sig = ste_removal(fs,get_audio,wintype)
     count = 0;
     
     [zc,E,out] = zcr_ste(get_audio,wintype);
+    out = logical(out);
     E = E(out);
     for k=1:num_frames
        frame = get_audio((k-1)*frame_len+1 : frame_len*k);
        frameE = E((k-1)*frame_len+1 : frame_len*k);
        
-       max_E = min(frameE);
-       max_val = max(frame);
+       min_E = min(frameE);
        
-       if(max_E > 0.001)
+       if(min_E > 0.001)
             count = count+1;
             new_sig((count-1)*frame_len+1 : frame_len*count) = frame;
        end

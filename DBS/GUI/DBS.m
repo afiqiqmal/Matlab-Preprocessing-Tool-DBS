@@ -157,7 +157,8 @@ if isempty(list)
    set(handles.files_list,'Enable','off');
 end
 handles.item_selected = list{index_selected};
-[get_audio,fs] = audioread(strcat(handles.folder_name,'\',handles.item_selected));
+[get_audio,fs] = audioread(strcat(handles.folder_name,...
+                '\',handles.item_selected));
 [m,n] = size(get_audio);
 if n>1
    get_audio = (get_audio(:,1)+get_audio(:,2))/2;
@@ -272,12 +273,15 @@ function open_dir_Callback(hObject, eventdata, handles)
 % hObject    handle to open_dir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+% default folder
 folder_name = uigetdir('C:\Users\user\Dropbox\Matlab','');
-set(handles.files_list,'Value',1);
+set(handles.files_list,'Value',1); % set default value 
 set(handles.files_list,'String',[]); % clearing first
 
 handles.folder_name = folder_name;
-allFiles = dir( folder_name );
+% get all content of the folder
+allFiles = dir( folder_name ); 
+% get all name of all content
 allNames = {allFiles(~[allFiles.isdir]).name};
 set(handles.files_list,'String',allNames);
 set(handles.files_list,'Enable','on');
@@ -288,11 +292,14 @@ function open_files_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[filename,path] = uigetfile({'*.wav' 'Wav files';'*.mp3' 'Mp3 Files'},'Select a file','C:\Users\user\Dropbox\Matlab','MultiSelect', 'on');
-set(handles.files_list,'Value',1);
+[filename,path] = uigetfile({'*.wav' 'Wav files';'*.mp3' 'Mp3 Files'},...
+                    'Select a file',...
+                    'C:\Users\user\Dropbox\Matlab','MultiSelect', 'on');
 
+set(handles.files_list,'Value',1);
 set(handles.files_list,'String',[]); % clearing first
 
+% convert to string array
 filename = cellstr(filename);
 
 handles.folder_name = path;
@@ -432,12 +439,12 @@ if isPushed
     if ~isempty(answer)
         durat = answer{1};
         if(isnumeric(str2num(durat(1:end-1))) & isnumeric(str2num(answer{1})) &  isnumeric(str2num(answer{3})))
+            % start recorder
             [recorder,fs] = audio_recorder(answer{2},answer{1},answer{3});
-            %saving audio
+            % stop recorder when done
             stop(recorder);
-            %extract audio from recorder
+            % extract data from audio
             input = getaudiodata(recorder);
-
             %save files
             [nfname,npath]=uiputfile('.wav','Save sound','new_sound.wav');
             if isequal(nfname,0) || isequal(npath,0)
@@ -578,6 +585,8 @@ DefAns.Windowing = '';
         waitbar(0.99,h,strcat('ZCR STE Done!',{' '},'99%'));
         delete(h);
         
+        set(handles.sil_current_txt,'String','Selected Silence : ZCR+STE');
+        
     end
    
 % --- Executes on button press in hcode_btn.
@@ -637,6 +646,8 @@ fs = getappdata(hMainGui,'getFs');
             waitbar(0.99,h,strcat('Hard Code Done!',{' '},'99%'));
 
             delete(h);
+            
+            set(handles.sil_current_txt,'String','Selected Silence : Hard Code');
         end
     end
 % --- Executes on button press in ste_btn.
@@ -717,6 +728,8 @@ DefAns.Windowing = '';
         waitbar(0.99,h,strcat('STE Done!',{' '},'99%'));
 
         delete(h);
+        
+        set(handles.sil_current_txt,'String','Selected Silence : STE');
     end
 
 % --- Executes on button press in gen_all.
@@ -850,7 +863,7 @@ if Cancelled ~= 1
    waitbar(0.99,h,strcat('Spectral Subtraction Done!',{' '},'99%'));
 
    delete(h);
-   
+   set(handles.noi_current_txt,'String','Selected Noise : Spectral Subtraction');
 end
 
 
@@ -1006,6 +1019,30 @@ else
     
     setappdata(hMainGui,'outputSig',output);
     setappdata(hMainGui,'axes2play',output);
+    
+    temp = handles.item_selected(1:end-4);
+    new_files = strcat(temp,'_output_clean.wav');
+    [nfname,npath]=uiputfile('.wav','Save output',new_files);
+    if isequal(nfname,0) || isequal(npath,0)
+        return
+    else
+        %loading
+        h=waitbar(0.3,strcat('Saving..',{' '},'30%'));
+        set(h,'Name','Please Wait');
+        set(h,'WindowStyle','modal');
+        waitObj = findobj(h,'Type','Patch');
+        set(waitObj, 'FaceColor',[0 0 1]);
+        
+        disp(new_files);
+        nwavfile=fullfile(npath, nfname);
+               
+        %writing files
+        audiowrite(nwavfile,output,fs,'Comment','This is new output files.');
+
+        %removing waitbar
+        waitbar(0.99,h,strcat('Almost There',{' '},'99%'));
+        delete(h);
+    end
 end
 
 
@@ -1097,23 +1134,34 @@ function reco_filter_btn_Callback(hObject, eventdata, handles)
        getwin = char(init(1));
        getpcnt = str2double(char(init(2)));
        set(handles.text_pcnt_axes2,'String',strcat('Percentage of silence removed by STE with',{' '},getwin,{' '},'windowing'));
+       
+       %set appdata
        pcnt = strcat(num2str(sprintf('%.2f',getpcnt)),'%');
        set(handles.axes2_pcnt,'String',pcnt);
+       setappdata(hMainGui,'sil_edit',pcnt);
        pau = no1;
        setappdata(hMainGui,'silenceSig',pau);
+       setappdata(hMainGui,'noiwin',getwin);
     elseif getm == 2
        init = cellstr(zcrste);
        getwin = char(init(1));
        getpcnt = str2double(char(init(2)));
        set(handles.text_pcnt_axes2,'String',strcat('Percentage of silence removed by ZCR STE with',{' '},getwin,{' '},'windowing'));
+       
+       %set appdata
        pcnt = strcat(num2str(sprintf('%.2f',getpcnt)),'%');
        set(handles.axes2_pcnt,'String',pcnt);
+       setappdata(hMainGui,'sil_edit',pcnt);
        pau = no2;
        setappdata(hMainGui,'silenceSig',pau);
+       setappdata(hMainGui,'noiwin',getwin);
     elseif getm == 3
        set(handles.text_pcnt_axes2,'String',strcat('Percentage of silence removed by Hard Code below 0.2'));
+       
+       %set appdata
        pcnt = strcat(num2str(sprintf('%.2f',percentage)),'%');
        set(handles.axes2_pcnt,'String',pcnt);
+       setappdata(hMainGui,'sil_edit',pcnt);
        pau = no3;
        setappdata(hMainGui,'silenceSig',pau);
     end
@@ -1153,6 +1201,7 @@ function reco_filter_btn_Callback(hObject, eventdata, handles)
     getspec = cellstr(specsub);
     getwin = char(getspec(1));
     getpcnt = str2double(char(getspec(2)));
+    
     output_sig = storeA{getmax}; % Output clean signal
     clean_noise = storeDis{getmax}; % audio after noise removal
     
@@ -1161,6 +1210,9 @@ function reco_filter_btn_Callback(hObject, eventdata, handles)
     set(handles.specsub_text,'String',pcnt);
     set(handles.axes2_pcnt_n,'String',pcnt);
     
+    %set appdata
+    setappdata(hMainGui,'noi_edit',pcnt);
+    setappdata(hMainGui,'noiwin',getwin);
     setappdata(hMainGui,'noiseSig',clean_noise);
     setappdata(hMainGui,'outputSig',output_sig);
     setappdata(hMainGui,'axes2play',output_sig);
@@ -1182,3 +1234,28 @@ function reco_filter_btn_Callback(hObject, eventdata, handles)
     set(handles.current_sil,'String','Current: Recommeded Run Finish');
     waitbar(0.99,h,strcat('Done!',{' '},'99%'));
     delete(h);
+    
+    
+    temp = handles.item_selected(1:end-4);
+    new_files = strcat(temp,'_output_clean.wav');
+    [nfname,npath]=uiputfile('.wav','Save output',new_files);
+    if isequal(nfname,0) || isequal(npath,0)
+        return
+    else
+        %loading
+        h=waitbar(0.3,strcat('Saving..',{' '},'30%'));
+        set(h,'Name','Please Wait');
+        set(h,'WindowStyle','modal');
+        waitObj = findobj(h,'Type','Patch');
+        set(waitObj, 'FaceColor',[0 0 1]);
+        
+        disp(new_files);
+        nwavfile=fullfile(npath, nfname);
+               
+        %writing files
+        audiowrite(nwavfile,output_sig,fs,'Comment','This is new output files.');
+
+        %removing waitbar
+        waitbar(0.99,h,strcat('Almost There',{' '},'99%'));
+        delete(h);
+    end

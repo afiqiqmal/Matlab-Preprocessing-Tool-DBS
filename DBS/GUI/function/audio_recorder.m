@@ -63,10 +63,7 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
     
     % define the timer callback
     function audioTimerCallback(hObject,~)
-        
-        % get the sample data
-        samples  = getaudiodata(hObject);
-        
+        samples  = getaudiodata(hObject); % get the sample data
         % skip if not enough data
         if length(samples)<lastSampleIdx+1+Fs
             return;
@@ -74,8 +71,7 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
         
         % extract the samples that we have not performed an FFT on
         X = samples(lastSampleIdx+1:lastSampleIdx+Fs);
-        % compute the FFT
-        Y = fft(X,N);
+        Y = fft(X,N); % compute the FFT
         
         % plot the data
         t = linspace(0,1-1/Fs,Fs) + atTimSecs;
@@ -83,12 +79,9 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
         
         f = 0:Fs/N:(Fs/N)*(N-1);
         set(hPlot2,'XData',f,'YData',abs(Y));
-         
-        % increment the last sample index
-        lastSampleIdx = lastSampleIdx + Fs;
-        
-        % increment the time in seconds "counter"
-        atTimSecs     = atTimSecs + 1; 
+
+        lastSampleIdx = lastSampleIdx + Fs; % increment the last sample index
+        atTimSecs     = atTimSecs + 1;  % increment the time in seconds "counter"
     end
     % do not exit function until the figure has been deleted
     waitfor(hFig);

@@ -19,6 +19,7 @@ function zcrste_silence_sig = zcrste_removal(fs,get_audio,wintype)
     count = 0;
     
     [zc,E,out] = zcr_ste(get_audio,wintype);
+    out = logical(out);
     zc = zc(out);
     for k=1:num_frames
        frame = get_audio((k-1)*frame_len+1 : frame_len*k);
@@ -27,7 +28,7 @@ function zcrste_silence_sig = zcrste_removal(fs,get_audio,wintype)
        max_zc = max(framezc);
        max_val = max(frame);
        
-       if(max_val >= max_zc)
+       if(max_val >= max_zc && max_val>0.001)
             count = count+1;
             new_sig((count-1)*frame_len+1 : frame_len*count) = frame;
        end

@@ -222,32 +222,42 @@ else
 end;
 
 w(end)=[]; % for now always use sqrt hamming window
-w=w/sqrt(sum(w(1:ni:nf).^2));       % normalize to give overall gain of 1
+w=w/sqrt(sum(w(1:ni:nf).^2));       
+% normalize to give overall gain of 1
 if rf>0
-    rfm='';                         % truncated input to an exact number of frames
+    % truncated input to an exact number of frames
+    rfm='';                         
 else
     rfm='r';
 end
 [y,tt]=enframe(s,w,ni,rfm);
-tt=tt/fs;                           % frame times
+tt=tt/fs;                           
+% frame times
 yf=rfft(y,nf,2);
-yp=yf.*conj(yf);        % power spectrum of input speech
-[nr,nf2]=size(yp);              % number of frames
+yp=yf.*conj(yf);        
+% power spectrum of input speech
+[nr,nf2]=size(yp);              
+% number of frames
 ff=(0:nf2-1)*fs/nf;
 if isstruct(fsz)
     if ne>0
-        [dp,ze]=estnoiseg(yp,ze);       % estimate the noise using MMSE
+        [dp,ze]=estnoiseg(yp,ze);       
+        % estimate the noise using MMSE
     else
-        [dp,ze]=estnoisem(yp,ze);       % estimate the noise using minimum statistics
+        [dp,ze]=estnoisem(yp,ze);       
+        % estimate the noise using minimum statistics
     end
     ssv=fsz.ssv;
 else
     if ne>0
-        [dp,ze]=estnoiseg(yp,tinc,qp);	% estimate the noise using MMSE
+        [dp,ze]=estnoiseg(yp,tinc,qp);	
+        % estimate the noise using MMSE
     else
-        [dp,ze]=estnoisem(yp,tinc,qp);	% estimate the noise using minimum statistics
+        [dp,ze]=estnoisem(yp,tinc,qp);	
+        % estimate the noise using minimum statistics
     end
-    ssv=zeros(ni*(no-1),1);             % dummy saved overlap
+    ssv=zeros(ni*(no-1),1);             
+    % dummy saved overlap
 end
 if ~nr                                  % no data frames
     ss=[];
