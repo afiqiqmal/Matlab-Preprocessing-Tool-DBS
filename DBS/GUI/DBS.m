@@ -186,7 +186,7 @@ waitbar(0.99,h,strcat('Almost There',{' '},'99%'));
 %% Storing to appdata
 hMainGui = getappdata(0,'hMainGui');
 setappdata(hMainGui,'normalSig',get_audio);
-%setappdata(hMainGui,'silenceSig',no_silence_sig);
+setappdata(hMainGui,'currentSig',get_audio);
 setappdata(hMainGui,'getFs',fs);
 setappdata(hMainGui,'getPlotTitle',handles.item_selected);
 
@@ -371,6 +371,7 @@ else
     hMainGui = getappdata(0,'hMainGui');
     setappdata(hMainGui,'getPlotTitle','');
     setappdata(hMainGui,'normalSig','');
+    setappdata(hMainGui,'currentSig','');
     setappdata(hMainGui,'outputSig','');
     setappdata(hMainGui,'noiseSig','');
     setappdata(hMainGui,'noiwin','');
@@ -518,7 +519,7 @@ function zcrste_btn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0,'hMainGui');
-audio = getappdata(hMainGui,'normalSig');
+audio = getappdata(hMainGui,'currentSig');
 fs = getappdata(hMainGui,'getFs');
 
 
@@ -553,10 +554,6 @@ DefAns.Windowing = '';
         waitObj = findobj(h,'Type','Patch');
         set(waitObj, 'FaceColor',[0 0 1]);
 
-        hMainGui = getappdata(0,'hMainGui');
-        audio = getappdata(hMainGui,'normalSig');
-        fs = getappdata(hMainGui,'getFs');
-
         set(handles.current_sil,'String',strcat('Current: Short Term Zero Crossing with',{' '},wind,{' '},'windowing'));
         no_silence_sig = zcrste_removal(fs,audio,wind);
 
@@ -581,6 +578,7 @@ DefAns.Windowing = '';
         set(handles.zcrste_text,'String',pcnt);
         set(handles.text_pcnt_axes2,'String',strcat('Percentage of silent remove by ZCR STE with',{' '},wind,{' '},'windowing'));
         setappdata(hMainGui,'silenceSig',no_silence_sig);
+        setappdata(hMainGui,'currentSig',no_silence_sig); %current
         setappdata(hMainGui,'axes2play',no_silence_sig);
         waitbar(0.99,h,strcat('ZCR STE Done!',{' '},'99%'));
         delete(h);
@@ -595,7 +593,7 @@ function hcode_btn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0,'hMainGui');
-audio = getappdata(hMainGui,'normalSig');
+audio = getappdata(hMainGui,'currentSig');
 fs = getappdata(hMainGui,'getFs');
 
     prompt = {'Remove Amplitude Value Lower than:'};
@@ -641,6 +639,7 @@ fs = getappdata(hMainGui,'getFs');
             set(handles.text_pcnt_axes2,'String',strcat('Percentage of silent remove by Hard Code below',{' '},answer{1}));
 
             setappdata(hMainGui,'silenceSig',no_silence_sig);
+            setappdata(hMainGui,'currentSig',no_silence_sig); %current
             setappdata(hMainGui,'axes2play',no_silence_sig);
             
             waitbar(0.99,h,strcat('Hard Code Done!',{' '},'99%'));
@@ -657,7 +656,7 @@ function ste_btn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 hMainGui = getappdata(0,'hMainGui');
-audio = getappdata(hMainGui,'normalSig');
+audio = getappdata(hMainGui,'currentSig');
 fs = getappdata(hMainGui,'getFs');
 
 
@@ -692,10 +691,6 @@ DefAns.Windowing = '';
         waitObj = findobj(h,'Type','Patch');
         set(waitObj, 'FaceColor',[0 0 1]);
 
-        hMainGui = getappdata(0,'hMainGui');
-        audio = getappdata(hMainGui,'normalSig');
-        fs = getappdata(hMainGui,'getFs');
-
         set(handles.current_sil,'String',strcat('Current: Short Term Energy with',{' '},wind,{' '},'windowing'));
         no_silence_sig = ste_removal(fs,audio,wind);
 
@@ -723,6 +718,7 @@ DefAns.Windowing = '';
         set(handles.text_pcnt_axes2,'String',strcat('Percentage of silent remove by STE with',{' '},wind,{' '},'windowing'));
 
         setappdata(hMainGui,'silenceSig',no_silence_sig);
+        setappdata(hMainGui,'currentSig',no_silence_sig); %current
         setappdata(hMainGui,'axes2play',no_silence_sig);
         
         waitbar(0.99,h,strcat('STE Done!',{' '},'99%'));
@@ -779,7 +775,7 @@ function specsub_filter_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 hMainGui = getappdata(0,'hMainGui');
-audio = getappdata(hMainGui,'normalSig');
+audio = getappdata(hMainGui,'currentSig');
 fs = getappdata(hMainGui,'getFs');
 
 
@@ -816,10 +812,6 @@ if Cancelled ~= 1
    set(h,'WindowStyle','modal');
    waitObj = findobj(h,'Type','Patch');
    set(waitObj, 'FaceColor',[0 0 1]);
-   
-   hMainGui = getappdata(0,'hMainGui');
-   audio = getappdata(hMainGui,'normalSig');
-   fs = getappdata(hMainGui,'getFs');
    
    waitbar(0.5,h,strcat('Enchancing Noise Estimation...',{' '},'50%'));
    no_noise_sig = specsubtrac(mat2vec(audio),fs,wind);
@@ -859,6 +851,7 @@ if Cancelled ~= 1
 
    setappdata(hMainGui,'noiseSig',no_noise_sig);
    setappdata(hMainGui,'axes2play',no_noise_sig);
+   setappdata(hMainGui,'currentSig',no_noise_sig); %current
 
    waitbar(0.99,h,strcat('Spectral Subtraction Done!',{' '},'99%'));
 
@@ -1004,6 +997,7 @@ else
     silence = getappdata(hMainGui,'silenceSig');
     noiwin = getappdata(hMainGui,'noiwin');
     output = specsubtrac(mat2vec(silence),fs,noiwin);
+    %output = specsubtrac(mat2vec(silence),fs,noiwin);
     
     N = length(output); % signal length
     n = 0:N-1;
