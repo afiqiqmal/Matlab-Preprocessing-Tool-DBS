@@ -83,7 +83,6 @@ if isempty(list)
    set(handles.hcode_btn,'Enable','off');
    set(handles.specsub_filter,'Enable','off');
    set(handles.reco_filter_btn,'Enable','off');
-   set(handles.gen_all,'Enable','off');
    set(handles.final_plot,'Enable','off');
    set(handles.play_2nd_sig,'Enable','off');
 end
@@ -207,7 +206,6 @@ set(handles.hcode_btn,'Enable','on');
 set(handles.specsub_filter,'Enable','on');
 set(handles.reco_filter_btn,'Enable','on');
 set(handles.final_plot,'Enable','on');
-set(handles.gen_all,'Enable','on');
 set(handles.play_2nd_sig,'Enable','on');
 delete(h);
 
@@ -363,7 +361,6 @@ else
     set(handles.hcode_btn,'Enable','off');
     set(handles.specsub_filter,'Enable','off');
     set(handles.reco_filter_btn,'Enable','off');
-    set(handles.gen_all,'Enable','off');
     set(handles.final_plot,'Enable','off');
     set(handles.play_2nd_sig,'Enable','off');
     
@@ -728,47 +725,6 @@ DefAns.Windowing = '';
         set(handles.sil_current_txt,'String','Selected Silence : STE');
     end
 
-% --- Executes on button press in gen_all.
-function gen_all_Callback(hObject, eventdata, handles)
-% hObject    handle to gen_all (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-set(handles.current_sil,'String','Current: Generate all percentage with all technique');
-hMainGui = getappdata(0,'hMainGui');
-audio = getappdata(hMainGui,'normalSig');
-fs = getappdata(hMainGui,'getFs');
-
-     h=waitbar(0.1,strcat('Start Generate',{' '},'10%'));
-     set(h,'Name','Please Wait');
-     set(h,'WindowStyle','modal');
-     waitObj = findobj(h,'Type','Patch');
-     set(waitObj, 'FaceColor',[0 0 1]);
-        
-    if isempty(get(handles.ste_text,'String'))
-        waitbar(0.2,h,strcat('STE Calculating',{' '},'20%'));
-        no1 = ste_removal(fs,audio);
-        percentage = 100 - (length(no1)/ length(audio)) * 100;
-        pcnt = strcat(num2str(sprintf('%.2f',percentage)),'%');
-        set(handles.ste_text,'String',pcnt);
-    end
-    if isempty(get(handles.zcrste_text,'String'))
-        waitbar(0.5,h,strcat('ZCR STE Calculating',{' '},'50%'));
-        no2 = zcrste_removal(fs,audio);
-        percentage = 100 - (length(no2)/ length(audio)) * 100;
-        pcnt = strcat(num2str(sprintf('%.2f',percentage)),'%');
-        set(handles.zcrste_text,'String',pcnt);
-
-    end
-    if isempty(get(handles.hcode_text,'String'))
-        waitbar(0.8,h,strcat('Hard Code Calculating',{' '},'80%'));
-        no3 = silence_removal(fs,audio);
-        percentage = 100 - (length(no3)/ length(audio)) * 100;
-        pcnt = strcat(num2str(sprintf('%.2f',percentage)),'%');
-        set(handles.hcode_text,'String',pcnt);
-    end
-    waitbar(0.99,h,strcat('Done!',{' '},'99%'));
-    delete(h);
-
 % --- Executes on button press in specsub_filter.
 function specsub_filter_Callback(hObject, eventdata, handles)
 % hObject    handle to specsub_filter (see GCBO)
@@ -988,32 +944,13 @@ function final_plot_Callback(hObject, eventdata, handles)
 
 hMainGui = getappdata(0,'hMainGui');
 fs = getappdata(hMainGui,'getFs');
+output = getappdata(hMainGui,'currentSig');
 
 if isempty(getappdata(hMainGui,'silenceSig'))
     msgbox('Please select silence technique!','Error','error','modal');
 elseif isempty(getappdata(hMainGui,'noiseSig'))
     msgbox('Please select noise technique!','Error','error','modal');
-else
-    silence = getappdata(hMainGui,'silenceSig');
-    noiwin = getappdata(hMainGui,'noiwin');
-    output = specsubtrac(mat2vec(silence),fs,noiwin);
-    %output = specsubtrac(mat2vec(silence),fs,noiwin);
-    
-    N = length(output); % signal length
-    n = 0:N-1;
-    ts = n*(1/fs); % time for signal
-    axes(handles.axes2);
-    plot(ts,output);
-    ylim([-1 1]);
-    xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
-    ylabel('amplitude');
-    title(strcat('Final Output Signal for',{' '},handles.item_selected,{' '}));
-    set(gca,'FontSize',8,'fontWeight','bold');
-    set(findall(gcf,'type','text'),'FontSize',8,'fontWeight','bold');
-    
-    setappdata(hMainGui,'outputSig',output);
-    setappdata(hMainGui,'axes2play',output);
-    
+else 
     temp = handles.item_selected(1:end-4);
     new_files = strcat(temp,'_output_clean.wav');
     [nfname,npath]=uiputfile('.wav','Save output',new_files);
