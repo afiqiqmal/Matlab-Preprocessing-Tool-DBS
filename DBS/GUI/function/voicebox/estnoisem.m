@@ -183,9 +183,9 @@ else
         pb=p;               % smoothed noisy speech power (20)
         pb2=pb.^2;
         pminu=p;
-        actmin=repmat(Inf,1,nrf);   % Running minimum estimate
+        actmin=Inf(1,nrf);   % Running minimum estimate
         actminsub=actmin;           % sub-window minimum estimate
-        actbuf=repmat(Inf,nu,nrf);  % buffer to store subwindow minima
+        actbuf=Inf(nu,nrf);  % buffer to store subwindow minima
         lminflag=zeros(1,nrf);      % flag to remember local minimum
     else
 
@@ -196,10 +196,10 @@ else
             pb=p;               % smoothed noisy speech power (20)
             pb2=pb.^2;
             pminu=p;
-            actmin=repmat(Inf,1,nrf);   % Running minimum estimate
+            actmin=Inf(1,nrf);   % Running minimum estimate
             actminsub=actmin;           % sub-window minimum estimate
             subwc=nv;                   % force a buffer switch on first loop
-            actbuf=repmat(Inf,nu,nrf);  % buffer to store subwindow minima
+            actbuf=Inf(nu,nrf);  % buffer to store subwindow minima
             ibuf=0;
             lminflag=zeros(1,nrf);      % flag to remember local minimum
         end

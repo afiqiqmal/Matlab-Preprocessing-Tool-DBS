@@ -133,7 +133,7 @@ set(handles.noi_edit,'String',pcnt);
 waitbar(0.8,h,strcat('Plotting Every Signal',{' '},'80%'));
 
 %% output signal
-silence = getappdata(hMainGui,'outputSig');
+silence = getappdata(hMainGui,'currentSig');
 axes(handles.output_sig);
 plot(silence,'Color',[251 111 66] ./ 255);
 ylim([-1 1]);

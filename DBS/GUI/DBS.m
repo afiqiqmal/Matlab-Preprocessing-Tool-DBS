@@ -119,28 +119,7 @@ function files_list_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Hints: contents = cellstr(get(hObject,'String')) returns files_list contents as cell array
 %contents{get(hObject,'Value')} returns selected item from files_list
-set(handles.ste_text,'String','');
-set(handles.hcode_text,'String','');
-set(handles.zcrste_text,'String','');
-set(handles.specsub_text,'String','');
-
-hMainGui = getappdata(0,'hMainGui');
-setappdata(hMainGui,'getPlotTitle','');
-setappdata(hMainGui,'normalSig','');
-setappdata(hMainGui,'outputSig','');
-setappdata(hMainGui,'noiseSig','');
-setappdata(hMainGui,'noiwin','');
-setappdata(hMainGui,'silenceSig','');
-setappdata(hMainGui,'axes2play','');
-setappdata(hMainGui,'getFs','');
-    
-fin = findall(0,'type','axes');
-for i=1:length(fin)
-    cla(fin(i));
-end
-
-set(handles.play_btn,'Value',0);
-set(handles.play_btn,'String','Play');
+reset_func(hObject, eventdata, handles);
 
 %% making loading
 h=waitbar(0.3,strcat('Get Audio Ready',{' '},'30%'));
@@ -421,6 +400,7 @@ function recorder_bttn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of recorder_bttn
+reset_func(hObject, eventdata, handles);
 isPushed = get(hObject,'Value');
 if isPushed
     set(hObject,'String','Stop Record');
@@ -464,14 +444,79 @@ if isPushed
                waitbar(0.99,h,strcat('Almost There',{' '},'99%'));
                delete(h);
             end
-
+            
             %add to listbox
             set(handles.files_list,'Value',1);
             set(handles.files_list,'String',[]); % clearing first
             nfname = cellstr(nfname);
             handles.folder_name = npath;
+            handles.item_selected = nfname;
             set(handles.files_list,'String',nfname);
             set(handles.files_list,'Enable','on');
+
+            %% making loading
+            h=waitbar(0.3,strcat('Get Audio Ready',{' '},'30%'));
+            set(h,'Name','Please Wait');
+            set(h,'WindowStyle','modal');
+            waitObj = findobj(h,'Type','Patch');
+            set(waitObj, 'FaceColor',[0 0 1]);
+
+            %% get input
+            list = get(hObject,'String');
+            if isempty(list)
+               set(handles.files_list,'Enable','off');
+            end
+            [get_audio,fs] = audioread(nwavfile);
+            [m,n] = size(get_audio);
+            if n>1
+               get_audio = (get_audio(:,1)+get_audio(:,2))/2;
+            end
+            handles.audio = get_audio;
+            handles.player = audioplayer(get_audio,fs);
+
+            waitbar(0.4,h,strcat('Plotting Signal',{' '},'40%'));
+
+            %% ploting audio signal at first plot axes
+            N = length(get_audio); % signal length
+            n = 0:N-1;
+            ts = n*(1/fs); % time for signal
+            axes(handles.wave_form);
+            plot(ts,get_audio,'Color',[251 111 66] ./ 255);
+            ylim([-1 1]);
+            xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
+            ylabel('amplitude');
+            title(strcat('Input Signal for',{' '},handles.item_selected));
+            set(gca,'FontSize',8,'fontWeight','bold');
+            set(findall(gcf,'type','text'),'FontSize',8,'fontWeight','bold');
+
+            waitbar(0.99,h,strcat('Almost There',{' '},'99%'));
+
+            %% Storing to appdata
+            hMainGui = getappdata(0,'hMainGui');
+            setappdata(hMainGui,'normalSig',get_audio);
+            setappdata(hMainGui,'currentSig',get_audio);
+            setappdata(hMainGui,'getFs',fs);
+            setappdata(hMainGui,'getPlotTitle',handles.item_selected);
+
+
+            %% global variable pass
+            msgbox({'1. Please choose your removal technique at right sidebar' '    OR'...
+                        '2. Click Recommended Run button below right sidebar*' ' '...
+                        '#####################################'...
+                        '*NOTE: Recommended Run will auto choose techniques based on percentages and produce output'...
+                        '######################################'},...
+                        'NOTE','help','modal');
+        
+            guidata(hObject,handles);
+            set(handles.view_other_sig,'Enable','on');
+            set(handles.ste_btn,'Enable','on');
+            set(handles.zcrste_btn,'Enable','on');
+            set(handles.hcode_btn,'Enable','on');
+            set(handles.specsub_filter,'Enable','on');
+            set(handles.reco_filter_btn,'Enable','on');
+            set(handles.final_plot,'Enable','on');
+            set(handles.play_2nd_sig,'Enable','on');
+            delete(h);
         end
                 
         
