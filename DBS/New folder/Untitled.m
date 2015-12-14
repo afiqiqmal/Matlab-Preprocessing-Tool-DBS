@@ -1,5 +1,5 @@
 disp('Reading files...');
-[x,fs] = audioread('C:\Users\user\Dropbox\Matlab\data\Driver data\raw\khalid_dat1.wav.mp3');
+[x,fs] = audioread('C:\Users\user\Dropbox\Matlab\data\testing\Pre recorded data\Not clear\Voice 004.m4a');
 
 [m,n] = size(x);
 if n>1
@@ -14,7 +14,7 @@ end
     for k=1:num_frames
        frame = x((k-1)*frame_len+1 : frame_len*k);
        
-       audiowrite(strcat('Sound',num2str(k),'.wav'),frame,fs);
+       audiowrite(strcat('C:\Users\user\Dropbox\Matlab\data\testing\Pre recorded data\','Sound',num2str(k),'.wav'),frame,fs);
        
        calc = floor(k/num_frames * 100);
        disp(strcat(num2str(calc),'%'));

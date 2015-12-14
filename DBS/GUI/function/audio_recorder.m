@@ -50,7 +50,6 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
     hFig   = figure;
     hAxes1 = subplot(2,1,1);
     hAxes2 = subplot(2,1,2);
-    
     % create the graphics handles to the data that will be plotted on each
     % axes
     hPlot1 = plot(hAxes1,NaN,NaN);
