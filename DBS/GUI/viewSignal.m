@@ -86,7 +86,10 @@ waitbar(0.2,h,strcat('Plotting Every Signal',{' '},'20%'));
 normal = getappdata(hMainGui,'normalSig');
 handles.normal_play = audioplayer(normal,fs);
 axes(handles.normal_sig);
-plot(normal,'Color','red');
+N = length(normal); % signal length
+n = 0:N-1;
+ts = n*(1/fs); % time for signal
+plot(ts,normal,'Color','red');
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
@@ -101,7 +104,10 @@ waitbar(0.4,h,strcat('Plotting Every Signal',{' '},'40%'));
 silence = getappdata(hMainGui,'silenceSig');
 handles.silence_play = audioplayer(silence,fs);
 axes(handles.silence_sig);
-plot(silence);
+N = length(silence); % signal length
+n = 0:N-1;
+ts = n*(1/fs); % time for signal
+plot(ts,silence);
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
@@ -117,6 +123,7 @@ waitbar(0.5,h,strcat('Plotting Every Signal',{' '},'50%'));
 
 %% noise signal
 noise = getappdata(hMainGui,'noiseSig');
+handles.noise_play = audioplayer(noise,fs);
 axes(handles.noise_sig);
 plot(noise);
 ylim([-1 1]);
@@ -133,9 +140,13 @@ set(handles.noi_edit,'String',pcnt);
 waitbar(0.8,h,strcat('Plotting Every Signal',{' '},'80%'));
 
 %% output signal
-silence = getappdata(hMainGui,'currentSig');
+output = getappdata(hMainGui,'currentSig');
+handles.output_play = audioplayer(output,fs);
 axes(handles.output_sig);
-plot(silence,'Color',[251 111 66] ./ 255);
+N = length(output); % signal length
+n = 0:N-1;
+ts = n*(1/fs); % time for signal
+plot(ts,output,'Color',[251 111 66] ./ 255);
 ylim([-1 1]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
@@ -187,10 +198,10 @@ function play_out_Callback(hObject, eventdata, handles)
 isPushed = get(hObject,'Value');
 if isPushed
     set(hObject,'String','Pause');
-    resume(handles.player);
+    resume(handles.output_play);
 else
     set(hObject,'String','Play');
-    pause(handles.player);
+    pause(handles.output_play);
 end
 
 % --- Executes on button press in stop_out.
@@ -199,7 +210,7 @@ function stop_out_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-stop(handles.out_play);
+stop(handles.output_play);
 
 set(handles.play_out,'Value',0);
 set(handles.play_out,'String','Play');
@@ -242,10 +253,10 @@ function play_no_Callback(hObject, eventdata, handles)
 isPushed = get(hObject,'Value');
 if isPushed
     set(hObject,'String','Pause');
-    resume(handles.player);
+    resume(handles.noise_play);
 else
     set(hObject,'String','Play');
-    pause(handles.player);
+    pause(handles.noise_play);
 end
 
 % --- Executes on button press in stop_no.

@@ -18,15 +18,11 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
     if ~exist('Fs','var')|isempty(Fs)
         % default to 16000 hertz sampling rate
         Fs = 16000;
-    else
-        Fs = str2num(Fs);
-    end;
+    end
     
     if ~exist('N','var')|isempty(N)
         % default to the sampling rate
         N = Fs;
-    else
-        N = str2num(N);
     end
     
     
@@ -79,8 +75,10 @@ function [recorder,Fs] =audio_recorder(Fs,durationTime,N)
         f = 0:Fs/N:(Fs/N)*(N-1);
         set(hPlot2,'XData',f,'YData',abs(Y));
 
-        lastSampleIdx = lastSampleIdx + Fs; % increment the last sample index
-        atTimSecs     = atTimSecs + 1;  % increment the time in seconds "counter"
+        lastSampleIdx = lastSampleIdx + Fs; 
+        % increment the last sample index
+        atTimSecs     = atTimSecs + 1;  
+        % increment the time in seconds "counter"
     end
     % do not exit function until the figure has been deleted
     waitfor(hFig);

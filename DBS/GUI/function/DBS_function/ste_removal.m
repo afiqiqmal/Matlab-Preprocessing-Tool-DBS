@@ -19,7 +19,7 @@ function ste_silence_sig = ste_removal(fs,get_audio,wintype)
     new_sig = zeros(N,1);
     count = 0;
     
-    [zc,E,out] = zcr_ste(get_audio,wintype);
+    [E,out] = ste(get_audio,wintype);
     out = logical(out);
     E = E(out);
     for k=1:num_frames

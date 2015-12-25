@@ -152,7 +152,9 @@ n = 0:N-1;
 ts = n*(1/fs); % time for signal
 axes(handles.wave_form);
 plot(ts,get_audio,'Color',[251 111 66] ./ 255);
-ylim([-1 1]);
+mp = max(get_audio);
+tp = str2num(sprintf('%.1f',mp));
+ylim([-tp tp]);
 xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
 ylabel('amplitude');
 title(strcat('Input Signal for',{' '},handles.item_selected));
@@ -405,20 +407,18 @@ isPushed = get(hObject,'Value');
 if isPushed
     set(hObject,'String','Stop Record');
     %create modal dialog
-    prompt = {'Enter duration size: *empty to record until stop',...
-              'Enter Sampling Rate:*leave empty to default fs',...
-              'Enter FFT N-point block size:*leave empty to default FFT'};
+    prompt = {'Enter duration size: *empty to record until stop'};
     dlg_title = 'Recorder Setting Input';
     num_lines = 1;
-    defaultans = {'10s','16000','16000'};
+    defaultans = {'10s'};
     options.WindowStyle = 'modal';
     answer = inputdlg(prompt,dlg_title,num_lines,defaultans,options);
     
     if ~isempty(answer)
         durat = answer{1};
-        if(isnumeric(str2num(durat(1:end-1))) & isnumeric(str2num(answer{1})) &  isnumeric(str2num(answer{3})))
+        if(isnumeric(str2num(durat)))
             % start recorder
-            [recorder,fs] = audio_recorder(answer{2},answer{1},answer{3});
+            [recorder,fs] = audio_recorder(16000,answer{1},16000);
             % stop recorder when done
             stop(recorder);
             % extract data from audio
@@ -482,7 +482,9 @@ if isPushed
             ts = n*(1/fs); % time for signal
             axes(handles.wave_form);
             plot(ts,get_audio,'Color',[251 111 66] ./ 255);
-            ylim([-1 1]);
+            mp = max(get_audio);
+            tp = str2num(sprintf('%.1f',mp));
+            ylim([-tp tp]);
             xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
             ylabel('amplitude');
             title(strcat('Input Signal for',{' '},handles.item_selected));
@@ -605,7 +607,9 @@ DefAns.Windowing = '';
         ts = n*(1/fs); % time for signal
         axes(handles.axes2);
         plot(ts,no_silence_sig);
-        ylim([-1 1]);
+        mp = max(no_silence_sig);
+        tp = str2num(sprintf('%.1f',mp));
+        ylim([-tp tp]);
         
         xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
         ylabel('amplitude');
@@ -664,7 +668,9 @@ fs = getappdata(hMainGui,'getFs');
             ts = n*(1/fs); % time for signal
             axes(handles.axes2);
             plot(ts,no_silence_sig);
-            ylim([-1 1]);
+            mp = max(no_silence_sig);
+            tp = str2num(sprintf('%.1f',mp));
+            ylim([-tp tp]);
             
             xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
             ylabel('amplitude');
@@ -743,7 +749,9 @@ DefAns.Windowing = '';
         ts = n*(1/fs); % time for signal
         axes(handles.axes2);
         plot(ts,no_silence_sig);
-        ylim([-1 1]);
+        mp = max(no_silence_sig);
+        tp = str2num(sprintf('%.1f',mp));
+        ylim([-tp tp]);
         
         xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
         ylabel('amplitude');
@@ -823,7 +831,9 @@ if Cancelled ~= 1
    ts = n*(1/fs); % time for signal
    axes(handles.axes2);
    plot(ts,no_noise_sig);
-   ylim([-1 1]);
+   mp = max(no_noise_sig);
+   tp = str2num(sprintf('%.1f',mp));
+   ylim([-tp tp]);
    
    xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
    ylabel('amplitude');
@@ -1200,7 +1210,9 @@ function reco_filter_btn_Callback(hObject, eventdata, handles)
     ts = n*(1/fs); % time for signal
     axes(handles.axes2);
     plot(ts,output_sig);
-    ylim([-1 1]);
+    mp = max(output_sig);
+    tp = str2num(sprintf('%.1f',mp));
+    ylim([-tp tp]);
     xlabel(strcat('Sample Number (fs = ', num2str(fs), ')'));
     ylabel('amplitude');
     title(strcat('Final Output Signal for',{' '},handles.item_selected,{' '}));

@@ -148,7 +148,7 @@ else
     qq.ri=0;       % round ni to the nearest power of 2
     qq.g=1;        % subtraction domain: 1=magnitude, 2=power
     qq.e=1;        % gain exponent
-    qq.am=3;      % max oversubtraction factor
+    qq.am=3;       % max oversubtraction factor
     qq.b=0.01;      % noise floor
     qq.al=-5;       % SNR for maximum a (set to Inf for fixed a)
     qq.ah=20;       % SNR for minimum a
